@@ -1,11 +1,17 @@
-import React, { Component } from 'react';
-import { Route, NavLink, Switch, Redirect } from 'react-router-dom';
+import React, { Component, Suspense } from 'react';
+import { Route, NavLink, Switch /*, Redirect */} from 'react-router-dom';
 
 import './Blog.css';
 import Posts from './Posts/Posts';
-import NewPost from './NewPost/NewPost';
+// import NewPost from './NewPost/NewPost';
+
+const NewPost = React.lazy(() => import('./NewPost/NewPost'));
 
 class Blog extends Component {
+  state = {
+    auth: true
+  }
+
   render() {
     return (
       <div className="Blog">
@@ -29,9 +35,17 @@ class Blog extends Component {
           </nav>
         </header>
         <Switch>
-          <Route path="/new-post" component={NewPost} />
+          {this.state.auth ? 
+            // <Route path="/new-post" component={NewPost} /> 
+            <Route path="/new-post" render={() => (
+              <Suspense fallback={<div>Loading...</div>}>
+                <NewPost />
+              </Suspense>
+            )} /> 
+          : null }
           <Route path="/posts" component={Posts} />
-          <Redirect from="/" to="/posts" />
+          <Route render={() => <h1>Not found</h1>} /> {/*Instead of h1 a 404 component can be used*/}
+          {/* <Redirect from="/" to="/posts" /> */}
         </Switch>
       </div>
     );
